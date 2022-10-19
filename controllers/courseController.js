@@ -1,13 +1,18 @@
 const connection = require("../services/database");
-const moment = require('moment'); 
+const moment = require('moment');
+const slugify = require('slugify');
 exports.createCourse = async (req, res) => {
   try {
   let name = req.body.name;
   let description = req.body.description;
+  let courseSlug = slugify(req.body.name, {
+    replacement : '-',
+    lower : true
+  })
   let created_at = moment().format('YYYY-MM-DD HH:mm:ss');
   function createCourse() {
     let query = `INSERT INTO online_course_db.courses
-        (name,description,created_at) values ('${name}', '${description}', '${created_at}')`;
+        (name,description,created_at, slug) values ('${name}', '${description}', '${created_at}', '${courseSlug}')`;
     return new Promise((resolve, reject) => {
       connection.query(query, (err, result) => {
         if (err) {
@@ -65,6 +70,40 @@ exports.getAllCourses = async (req, res) => {
     
    res.status(200).render('courses', {
     courses,
+    page_name : 'courses'
+   })
+  } catch (error) {
+    res.status(400).json({
+        status : 'fail',
+        error : error
+      })
+  }
+ 
+};
+
+exports.getCourse = async (req, res) => {
+  try {
+
+  function getCourse() {
+    let query = `select * from online_course_db.courses where slug = '${req.params.slug}'
+        `;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log(result)
+          resolve(result);
+        }
+      });
+    });
+  }
+  
+    const course = await getCourse();
+ //   console.log(course);
+    
+   res.status(200).render('course', {
+    course,
     page_name : 'courses'
    })
   } catch (error) {
