@@ -1,6 +1,7 @@
 const express = require('express');
 const pageRoute = require('./routes/pageRoute');
 const courseRoute = require('./routes/courseRoute');
+const categoryRoute = require('./routes/categoryRoute');
 const app = express();
 const port = 5000;
 //Template Engine
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 //Routes
 app.use('/',pageRoute);
 app.use('/courses',courseRoute);
+app.use('/categories', categoryRoute);
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);

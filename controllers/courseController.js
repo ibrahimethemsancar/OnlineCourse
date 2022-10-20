@@ -25,7 +25,7 @@ exports.createCourse = async (req, res) => {
   }
   if(name !== undefined && description !==undefined){
     const course = await createCourse();
-    console.log(course);
+    //console.log(course);
     
       res.status(201).json({
           status : 'success',
@@ -50,26 +50,72 @@ exports.createCourse = async (req, res) => {
 
 exports.getAllCourses = async (req, res) => {
   try {
-  function getCourses() {
+    let categorySlug = req.query.categories;
+   
+    let categoryCondition = `1=1`;
+    function getCategoryId(categorySlug){
+      
+      let query = `select id from online_course_db.categories
+        where slug = '${categorySlug}'`;
+        //console.log(query)
+        return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result[0]?.id);
+        }
+      });
+    });
+    };
+    if(categorySlug){
+  
+    categoryId = await getCategoryId(categorySlug);
+    
+    if(typeof categoryId != 'number'){
+      categoryCondition = `categoryId = 0`
+    }else{
+      categoryCondition = `categoryId = ${categoryId}`
+    }
+    
+    
+  }
+  function getCourses(categoryCondition) {
     let query = `select * from online_course_db.courses
+    where ${categoryCondition}`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+         
+          resolve(result);
+        }
+      });
+    });
+  }
+  function getCategories() {
+    let query = `select * from online_course_db.categories
         `;
     return new Promise((resolve, reject) => {
       connection.query(query, (err, result) => {
         if (err) {
           reject(err);
         } else {
-          console.log(result)
+         
           resolve(result);
         }
       });
     });
   }
   
-    const courses = await getCourses();
- //   console.log(course);
+    const courses = await getCourses(categoryCondition);
+    const categories = await getCategories();
+    //console.log(courses) 
     
    res.status(200).render('courses', {
     courses,
+    categories,
     page_name : 'courses'
    })
   } catch (error) {
@@ -92,7 +138,7 @@ exports.getCourse = async (req, res) => {
         if (err) {
           reject(err);
         } else {
-          console.log(result)
+        
           resolve(result);
         }
       });
