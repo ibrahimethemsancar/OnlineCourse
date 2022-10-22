@@ -3,6 +3,10 @@ const authController = require('../controllers/authController');
 const userValidation =require('../validation/userValidation');
 const router = express.Router();
 
-router.route('/signup').post(userValidation,authController.createUser);
+const userRegisterValidation = userValidation.userRegisterValidation;
+const loginValidation = userValidation.loginValidation;
+
+router.route('/signup').post(userRegisterValidation,authController.createUser);
+router.route('/login').post(loginValidation,authController.loginUser);
 
 module.exports = router;

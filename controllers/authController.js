@@ -44,3 +44,41 @@ exports.createUser =  async (req, res) => {
   }
  
 };
+
+exports.loginUser =  async (req, res) => {
+  try {
+  let {email, password} = req.body;
+
+  function findUserPassword() {
+    let query = `select password from online_course_db.users
+        where email = '${email}'`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result[0].password);
+        }
+      });
+    });
+  }
+    const userPassword = await findUserPassword();
+    if(userPassword){
+      bcrypt.compare(password, userPassword, (err, same) => {
+        if(same){
+          //user session
+          res.status(200).send('you are logged in.')
+        }
+      })
+    }
+    
+  
+ 
+  } catch (error) {
+    res.status(400).json({
+        status : 'fail',
+        error 
+      })
+  }
+ 
+};
