@@ -49,25 +49,26 @@ exports.loginUser =  async (req, res) => {
   try {
   let {email, password} = req.body;
 
-  function findUserPassword() {
-    let query = `select password from online_course_db.users
+  function findUser() {
+    let query = `select id,name,password,email from online_course_db.users
         where email = '${email}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (err, result) => {
         if (err) {
           reject(err);
         } else {
-          resolve(result[0].password);
+          resolve(result[0]);
         }
       });
     });
   }
-    const userPassword = await findUserPassword();
-    if(userPassword){
-      bcrypt.compare(password, userPassword, (err, same) => {
+    const user= await findUser();
+    if(user){
+      bcrypt.compare(password, user.password, (err, same) => {
         if(same){
           //user session
-          res.status(200).send('you are logged in.')
+          req.session.userID = user.id;
+          res.status(200).redirect('/')
         }
       })
     }
