@@ -49,7 +49,6 @@ exports.createUser =  async (req, res) => {
 exports.loginUser =  async (req, res) => {
   try {
   let {email, password} = req.body;
-console.log(email,password)
   function findUser() {
     let query = `select id,name,password,email from online_course_db.users
         where email = '${email}'`;
@@ -88,4 +87,27 @@ exports.logOutUser = (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');
   })
-}
+};
+
+exports.getDashboardPage = async(req, res) =>{
+  const userId = req.session.userID;
+  function findUser() {
+    let query = `select * from online_course_db.users
+        where id = '${userId}'`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result[0]);
+        }
+      });
+    });
+  };
+  const user = await findUser();
+  console.log(user);
+  res.status(200).render("dashboard", {
+      page_name : "dashboard",
+      user
+  });
+};
