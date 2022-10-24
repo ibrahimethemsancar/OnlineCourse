@@ -1,11 +1,16 @@
 const express = require('express');
-const session = require('express-session')
+const mysql = require('mysql');
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+const {options, connection} = require('./services/database')
 const pageRoute = require('./routes/pageRoute');
 const courseRoute = require('./routes/courseRoute');
 const categoryRoute = require('./routes/categoryRoute');
 const userRoute = require('./routes/userRoute');
 const app = express();
 const port = 5000;
+var sessionStore = new MySQLStore(options);
+
 //Template Engine
 app.set("view engine", "ejs");
 
@@ -21,6 +26,7 @@ app.use(session({
     secret: 'my_keyboard_cat',
     resave: false,
     saveUninitialized: true,
+    store :sessionStore
   }));
 
 //Routes

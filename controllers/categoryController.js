@@ -1,4 +1,4 @@
-const connection = require("../services/database");
+const {connection} = require("../services/database");
 const moment = require('moment');
 const slugify = require('slugify');
 exports.createCategory = async (req, res) => {

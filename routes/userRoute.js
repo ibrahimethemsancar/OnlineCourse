@@ -8,5 +8,6 @@ const loginValidation = userValidation.loginValidation;
 
 router.route('/signup').post(userRegisterValidation,authController.createUser);
 router.route('/login').post(loginValidation,authController.loginUser);
+router.route('/logout').get(authController.logOutUser);
 
 module.exports = router;

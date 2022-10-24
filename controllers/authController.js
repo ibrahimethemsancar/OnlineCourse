@@ -1,4 +1,4 @@
-const connection = require("../services/database");
+const {connection} = require("../services/database");
 const bcrypt = require('bcrypt');
 exports.createUser =  async (req, res) => {
   try {
@@ -37,6 +37,7 @@ exports.createUser =  async (req, res) => {
   }
  
   } catch (error) {
+    console.log(error)
     res.status(400).json({
         status : 'fail',
         error 
@@ -48,7 +49,7 @@ exports.createUser =  async (req, res) => {
 exports.loginUser =  async (req, res) => {
   try {
   let {email, password} = req.body;
-
+console.log(email,password)
   function findUser() {
     let query = `select id,name,password,email from online_course_db.users
         where email = '${email}'`;
@@ -83,3 +84,8 @@ exports.loginUser =  async (req, res) => {
   }
  
 };
+exports.logOutUser = (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/');
+  })
+}
