@@ -5,6 +5,8 @@ exports.createCourse = async (req, res) => {
   try {
   let name = req.body.name;
   let description = req.body.description;
+  let categoryId = req.body.category;
+  let user_id = req.session.userID;
   let courseSlug = slugify(req.body.name, {
     replacement : '-',
     lower : true
@@ -12,7 +14,7 @@ exports.createCourse = async (req, res) => {
   let created_at = moment().format('YYYY-MM-DD HH:mm:ss');
   function createCourse() {
     let query = `INSERT INTO online_course_db.courses
-        (name,description,created_at, slug) values ('${name}', '${description}', '${created_at}', '${courseSlug}')`;
+        (name,description,created_at, slug, categoryId, user_id) values ('${name}', '${description}', '${created_at}', '${courseSlug}', ${categoryId}, ${user_id})`;
     return new Promise((resolve, reject) => {
       connection.query(query, (err, result) => {
         if (err) {
@@ -27,10 +29,7 @@ exports.createCourse = async (req, res) => {
     const course = await createCourse();
     //console.log(course);
     
-      res.status(201).json({
-          status : 'success',
-          message : "The new course is created." 
-        })
+      res.status(201).redirect('/courses');
   }
   else{
     res.status(400).json({
@@ -82,7 +81,7 @@ exports.getAllCourses = async (req, res) => {
   }
   function getCourses(categoryCondition) {
     let query = `select * from online_course_db.courses
-    where ${categoryCondition}`;
+    where ${categoryCondition} order by created_at desc`;
     return new Promise((resolve, reject) => {
       connection.query(query, (err, result) => {
         if (err) {
@@ -129,9 +128,23 @@ exports.getAllCourses = async (req, res) => {
 
 exports.getCourse = async (req, res) => {
   try {
-
+      
   function getCourse() {
     let query = `select * from online_course_db.courses where slug = '${req.params.slug}'
+        `;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+        
+          resolve(result);
+        }
+      });
+    });
+  };
+  function getCourseCreatedBy(id) {
+    let query = `select * from online_course_db.users where id = ${id}
         `;
     return new Promise((resolve, reject) => {
       connection.query(query, (err, result) => {
@@ -146,10 +159,13 @@ exports.getCourse = async (req, res) => {
   }
   
     const course = await getCourse();
- //   console.log(course);
+    console.log(course)
+    const course_from = await getCourseCreatedBy(course[0].user_id);
+    console.log(course);
     
    res.status(200).render('course', {
     course,
+    course_from,
     page_name : 'courses'
    })
   } catch (error) {

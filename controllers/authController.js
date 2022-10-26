@@ -102,10 +102,43 @@ exports.getDashboardPage = async(req, res) =>{
       });
     });
   };
+  function getCategories() {
+    let query = `select * from online_course_db.categories
+        `;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+         
+          resolve(result);
+        }
+      });
+    });
+  };
+  function getCourses() {
+    let query = `select * from online_course_db.courses
+        where user_id = ${req.session.userID} `;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+         
+          resolve(result);
+        }
+      });
+    });
+  }
+  
+  const categories = await getCategories();
   const user = await findUser();
+  const courses = await getCourses();
   console.log(user);
   res.status(200).render("dashboard", {
       page_name : "dashboard",
-      user
+      user,
+      categories,
+      courses
   });
 };
